@@ -1,20 +1,15 @@
-import prodb, {
-  bulkcreate,
-  createEle,
-  getData,
-  SortObj
-} from "./module.js";
+import prodb, { bulkcreate, createEle, getData, SortObj } from "./module.js";
 
-
-let db = prodb("Productdb", {
-  products: `++id, name, seller, price`
+let db = prodb("Studentsdb", {
+  products: `++id, name, class, level, paid`,
 });
 
 // input tags
 const userid = document.getElementById("userid");
 const proname = document.getElementById("proname");
-const seller = document.getElementById("seller");
-const price = document.getElementById("price");
+const seller = document.getElementById("classname");
+const price = document.getElementById("levelname");
+const paid = document.getElementById("paidstatus");
 
 // create button
 const btncreate = document.getElementById("btn-create");
@@ -25,21 +20,22 @@ const btndelete = document.getElementById("btn-delete");
 // user data
 
 // event listerner for create button
-btncreate.onclick = event => {
+btncreate.onclick = (event) => {
   // insert values
   let flag = bulkcreate(db.products, {
     name: proname.value,
     seller: seller.value,
-    price: price.value
+    price: price.value,
+    paid: paid.value,
   });
   // reset textbox values
   //proname.value = "";
   //seller.value = "";
   // price.value = "";
-  proname.value = seller.value = price.value = "";
+  proname.value = seller.value = price.value = paid.value = "";
 
   // set id textbox value
-  getData(db.products, data => {
+  getData(db.products, (data) => {
     userid.value = data.id + 1 || 1;
   });
   table();
@@ -56,31 +52,34 @@ btnupdate.onclick = () => {
   const id = parseInt(userid.value || 0);
   if (id) {
     // call dexie update method
-    db.products.update(id, {
-      name: proname.value,
-      seller: seller.value,
-      price: price.value
-    }).then((updated) => {
-      // let get = updated ? `data updated` : `couldn't update data`;
-      let get = updated ? true : false;
+    db.products
+      .update(id, {
+        name: proname.value,
+        seller: seller.value,
+        price: price.value,
+        paid: paid.value,
+      })
+      .then((updated) => {
+        // let get = updated ? `data updated` : `couldn't update data`;
+        let get = updated ? true : false;
 
-      // display message
-      let updatemsg = document.querySelector(".updatemsg");
-      getMsg(get, updatemsg);
+        // display message
+        let updatemsg = document.querySelector(".updatemsg");
+        getMsg(get, updatemsg);
 
-      proname.value = seller.value = price.value = "";
-      //console.log(get);
-    })
+        proname.value = seller.value = price.value = paid.value = "";
+        //console.log(get);
+      });
   } else {
     console.log(`Please Select id: ${id}`);
   }
-}
+};
 
 // delete button
 btndelete.onclick = () => {
   db.delete();
-  db = prodb("Productdb", {
-    products: `++id, name, seller, price`
+  db = prodb("Studentsdb", {
+    products: `++id, name, class, level, paid`,
   });
   db.open();
   table();
@@ -88,15 +87,12 @@ btndelete.onclick = () => {
   // display message
   let deletemsg = document.querySelector(".deletemsg");
   getMsg(true, deletemsg);
-}
+};
 
-window.onload = event => {
+window.onload = (event) => {
   // set id textbox value
   textID(userid);
 };
-
-
-
 
 // create dynamic table
 function table() {
@@ -108,36 +104,35 @@ function table() {
     tbody.removeChild(tbody.firstChild);
   }
 
-
   getData(db.products, (data, index) => {
     if (data) {
-      createEle("tr", tbody, tr => {
+      createEle("tr", tbody, (tr) => {
         for (const value in data) {
-          createEle("td", tr, td => {
-            td.textContent = data.price === data[value] ? `$ ${data[value]}` : data[value];
+          createEle("td", tr, (td) => {
+            td.textContent =
+              data.price === data[value] ? `${data[value]}` : data[value];
           });
         }
-        createEle("td", tr, td => {
-          createEle("i", td, i => {
+        createEle("td", tr, (td) => {
+          createEle("i", td, (i) => {
             i.className += "fas fa-edit btnedit";
             i.setAttribute(`data-id`, data.id);
             // store number of edit buttons
             i.onclick = editbtn;
           });
-        })
-        createEle("td", tr, td => {
-          createEle("i", td, i => {
+        });
+        createEle("td", tr, (td) => {
+          createEle("i", td, (i) => {
             i.className += "fas fa-trash-alt btndelete";
             i.setAttribute(`data-id`, data.id);
             // store number of edit buttons
             i.onclick = deletebtn;
           });
-        })
+        });
       });
     } else {
-      notfound.textContent = "No record found in the database...!";
+      notfound.textContent = "Одоогоор бүртгэлтэй суралцагч алга байна...!";
     }
-
   });
 }
 
@@ -149,19 +144,20 @@ const editbtn = (event) => {
     proname.value = newdata.name || "";
     seller.value = newdata.seller || "";
     price.value = newdata.price || "";
+    paid.value = newdata.paid || "";
   });
-}
+};
 
-// delete icon remove element 
-const deletebtn = event => {
+// delete icon remove element
+const deletebtn = (event) => {
   let id = parseInt(event.target.dataset.id);
   db.products.delete(id);
   table();
-}
+};
 
 // textbox id
 function textID(textboxid) {
-  getData(db.products, data => {
+  getData(db.products, (data) => {
     textboxid.value = data.id + 1 || 1;
   });
 }
@@ -169,13 +165,15 @@ function textID(textboxid) {
 // function msg
 function getMsg(flag, element) {
   if (flag) {
-    // call msg 
+    // call msg
     element.className += " movedown";
 
     setTimeout(() => {
-      element.classList.forEach(classname => {
-        classname == "movedown" ? undefined : element.classList.remove('movedown');
-      })
+      element.classList.forEach((classname) => {
+        classname == "movedown"
+          ? undefined
+          : element.classList.remove("movedown");
+      });
     }, 4000);
   }
 }

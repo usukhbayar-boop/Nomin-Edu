@@ -31,7 +31,7 @@ const createEle = (tagname, appendTo, fn) => {
 };
 
 // check textbox validation
-const empty = object => {
+const empty = (object) => {
   let flag = false;
   for (const value in object) {
     if (object[value] != "" && object.hasOwnProperty(value)) {
@@ -47,10 +47,10 @@ const empty = object => {
 const getData = (dbname, fn) => {
   let index = 0;
   let obj = {};
-  dbname.count(count => {
+  dbname.count((count) => {
     // count rows in the table using count method
     if (count) {
-      dbname.each(table => {
+      dbname.each((table) => {
         // table => return the table object data
         // to arrange order we are going to create for in loop
         obj = SortObj(table);
@@ -68,16 +68,11 @@ const SortObj = (sortobj) => {
     id: sortobj.id,
     name: sortobj.name,
     seller: sortobj.seller,
-    price: sortobj.price
+    price: sortobj.price,
+    paid: sortobj.paid,
   };
   return obj;
-}
-
+};
 
 export default productsdb;
-export {
-  bulkcreate,
-  createEle,
-  getData,
-  SortObj
-};
+export { bulkcreate, createEle, getData, SortObj };
